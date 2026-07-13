@@ -1,13 +1,17 @@
-import { requestsCollection, ObjectId } from "../config/db";
+import { ObjectId, requestsCollection } from "../config/db";
 
 export interface AdoptionRequestInput {
   petId: string;
   petName: string;
   petImage?: string;
+  ownerEmail?: string;
   userEmail: string;
   userName: string;
-  phoneNumber: string;
-  address: string;
+  userImage?: string;
+  phoneNumber?: string;
+  address?: string;
+  pickupDate?: string;
+  message?: string;
   notes?: string;
   status: "pending" | "approved" | "rejected";
 }
@@ -17,11 +21,16 @@ export interface RequestsQueryFilters {
   petId?: string;
 }
 
-export const createAdoptionRequest = async (requestData: AdoptionRequestInput) => {
+export const createAdoptionRequest = async (
+  requestData: AdoptionRequestInput,
+) => {
   return await requestsCollection.insertOne(requestData);
 };
 
-export const getRequests = async ({ userEmail, petId }: RequestsQueryFilters) => {
+export const getRequests = async ({
+  userEmail,
+  petId,
+}: RequestsQueryFilters) => {
   const query: any = {};
   if (userEmail) query.userEmail = userEmail;
   if (petId) query.petId = petId;
@@ -32,13 +41,16 @@ export const getRequestById = async (id: string) => {
   return await requestsCollection.findOne({ _id: new ObjectId(id) });
 };
 
-export const updateRequestStatus = async (id: string, status: "approved" | "rejected" | "pending") => {
+export const updateRequestStatus = async (
+  id: string,
+  status: "approved" | "rejected" | "pending",
+) => {
   const request = await getRequestById(id);
   if (!request) return null;
 
   const result = await requestsCollection.updateOne(
     { _id: new ObjectId(id) },
-    { $set: { status } }
+    { $set: { status } },
   );
 
   if (status === "approved" && request.petId) {
@@ -50,7 +62,7 @@ export const updateRequestStatus = async (id: string, status: "approved" | "reje
       },
       {
         $set: { status: "rejected" },
-      }
+      },
     );
   }
 
