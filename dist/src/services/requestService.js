@@ -6,7 +6,7 @@ const createAdoptionRequest = async (requestData) => {
     return await db_1.requestsCollection.insertOne(requestData);
 };
 exports.createAdoptionRequest = createAdoptionRequest;
-const getRequests = async ({ userEmail, petId }) => {
+const getRequests = async ({ userEmail, petId, }) => {
     const query = {};
     if (userEmail)
         query.userEmail = userEmail;
